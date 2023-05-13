@@ -1,70 +1,42 @@
-# Getting Started with Create React App
+# Calculadora
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Fuciones principales
 
-## Available Scripts
+- Operaciones basicas: Suma (+), resta (-), multiplicación(x) y división (/)
+- Guardado y reutlización de resultados
+- Limpieza de memoria
 
-In the project directory, you can run:
+## Procedimiento
 
-### `npm start`
+### Esquema
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. Un contenedor para toda la calculadora
+2. Un header para el titulo
+3. Un div para la pantalla
+4. Un div para el panel de guardado
+5. Un div para el teclado numerico (números de 0-9, boton punto (.) y boton de Backspace(<-))
+6. Un div o Aside para las operaciones
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Estilos (css)
 
-### `npm test`
+- Agregar un id a los elementos que van a recibir un estilo
+- Definir los estilos para cada elemento
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Funcionalidad
 
-### `npm run build`
+1. Asignar funcion a los botones numericos para que al clickear pinten su numero correspondiente en la pantalla
+2. Asignar funcion a la tecla punto (.) para agregar un punto a la pantalla, no permitir agregar un segundo punto por numero
+3. Asignar funcion a la tecla Backspace para eliminar uno a uno los numeros pintados en pantalla, si en pantalla se encuentra un resultado, no hacer nada
+4. Asignar funcion a los botones de operaciones
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Al presionar el boton se guarde el numero, el identificador de la operación y limpie la pantalla para digitar el segundo numero
+- Al presionar nuevamente otra operación sin digitar numeros, cambie el identificador de la operación, así hasta que comience a digitar los números
+- Al presionar resultado (=) tome el numero guardado, el identificador de la operacion y el numero en pantalla para imprimir en pantalla el resultado con un identificador de resultado
+- Al presionar nuevamente un boton de operacion, guarde ese resultado y repita el proceso de las operaciones
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+5. Asignar funcion a los botones del panel de guardado
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Al presionar el boton CLEAR (CE) limpie la pantalla y el indicador de operacion
+- Al presionar el boton SAVE (SV), guarde el valor en pantalla con un identificador como valueNumber1
+- Al presionar el boton MEMORY (ME) en pantalla se vaya imprimiendo uno a uno los valores almacenados por SAVE y se muestre en un span o label el index del dato guardado
+- Al presionar el boton DELETE (DE), elimine el valor almacenado en el index al cual apunta MEMORY
