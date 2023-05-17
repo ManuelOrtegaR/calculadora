@@ -11,6 +11,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-width: 300px;
 }
 
 .aplication {
@@ -26,7 +27,6 @@
     rgba(0, 255, 128, 1) 100%
   );
   align-items: center;
-  width: 270px;
 }
 
 .aplication > h1 {
@@ -43,14 +43,16 @@
   border-radius: 10px;
   padding: 10px;
   height: 100px;
-  width: 250px;
+  width: 90%;
+  text-align: end;
 }
 
 .memoryControl {
   display: flex;
-  justify-content: space-around;
+  justify-content: end;
+  gap: 5px;
   margin: 10px;
-  width: 200px;
+  width: 90%;
   height: 25px;
 }
 
@@ -60,23 +62,21 @@
 }
 
 .controlPanel {
-  display: grid;
-  grid-template-rows: repeat(5, 55px);
-  grid-template-columns: repeat(4, 55px);
   border: 2px solid;
   border-radius: 10px;
   padding: 6px;
   margin: 10px;
+  width: 90%;
 }
 
 .controlPanel__Button {
   border-radius: 25px;
-  margin: 6px;
 }
 
 .controlPanel__Number {
-  font-size: 20px;
   font-weight: 600;
+  height: 50px;
+  margin: 3px;
 }
 
 .controlPanel__ImgButton {
