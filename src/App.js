@@ -2,22 +2,20 @@ import { useState } from 'react';
 import './App.css';
 
 const inputPanel = [7, 8, 9, 4, 5, 6, 1, 2, 3, '.', 0, 'back'];
+const inputOperators = ['+', '-', '*', '/', '='];
 const displayText = '';
 const memoryData = [];
-const data = '0';
-const activeSign = null;
+const data = [];
 
 function App() {
-  const inputOperators = [
-    { signo: '+' },
-    { signo: '-' },
-    { signo: '*' },
-    { signo: '/' },
-    { signo: '=' },
+  const memoryFunctions = [
+    { function: clear, input: 'CE' },
+    { function: 'save', input: 'SV' },
+    { function: 'memory', input: 'ME' },
+    { function: 'delete', input: 'DE' },
   ];
   const [display, setDisplay] = useState(displayText);
   const [dataValue, setDataValue] = useState(data);
-  const [operatorSign, setOperatorSign] = useState(activeSign);
   function Buttons() {
     return inputPanel.map(function (elemento) {
       return (
@@ -32,13 +30,26 @@ function App() {
   }
   function Operators() {
     return inputOperators.map(function (elemento) {
-      const sigName = elemento.signo;
       return (
         <button
           className='col-5 controlPanel__Button controlPanel__Number'
           onClick={operations}
         >
-          {sigName}
+          {elemento}
+        </button>
+      );
+    });
+  }
+  function Memory() {
+    return memoryFunctions.map(function (elemento) {
+      const funct = elemento.function;
+      const value = elemento.input;
+      return (
+        <button
+          className='memoryControl__Button memory-Control__clear'
+          onClick={funct}
+        >
+          {value}
         </button>
       );
     });
@@ -63,23 +74,41 @@ function App() {
     }
   }
 
-  function evaluaArimetica(fn) {
-    return new Function('return ' + fn)();
+  function equal(array) {
+    let prueba = array;
+    while (prueba.length >= 3) {
+      const stri = prueba[0] + prueba[1] + prueba[2];
+      const newStri = evaluaArimetica(stri);
+      const arr1 = prueba.slice(3);
+      arr1.unshift(newStri);
+      prueba = arr1;
+    }
+    setDisplay(prueba[0]);
+    setDataValue([]);
   }
 
   function operations(event) {
     const sign = event.target.innerText;
-    if (display && sign !== '=') {
-      const operation = display + sign;
-      const result = evaluaArimetica(operation);
-      setDataValue(result);
+    if (sign !== '=' && display) {
+      const newArray = [display, sign];
+      newArray.map((elem) => dataValue.push(elem));
       console.log(dataValue);
       setDisplay('');
     } else {
-      const operation = dataValue + operatorSign + display;
-      const result = evaluaArimetica(operation);
-      setDisplay(result);
+      if (sign === '=' && display) {
+        setDataValue(dataValue.push(display));
+        equal(dataValue);
+      }
     }
+  }
+
+  function evaluaArimetica(fn) {
+    return new Function('return ' + fn)();
+  }
+
+  function clear() {
+    setDisplay('');
+    setDataValue([]);
   }
 
   return (
@@ -94,22 +123,11 @@ function App() {
         </h1>
         <div className='display'>{display}</div>
         <div className='memoryControl'>
-          <button className='memoryControl__Button memory-Control__clear'>
-            CE
-          </button>
-          <button className='memoryControl__Button memory-Control__save'>
-            SV
-          </button>
-          <button className='memoryControl__Button memory-Control__memory'>
-            ME
-          </button>
-          <button className='memoryControl__Button memory-Control__delete'>
-            DE
-          </button>
+          <Memory />
         </div>
         <div className='controlPanel row'>
           <div className='numbers col-8'>
-            <Buttons printNumber={printNumber} />
+            <Buttons />
           </div>
           <div className='operatos col-4'>
             <Operators />
