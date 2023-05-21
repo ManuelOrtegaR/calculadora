@@ -11,19 +11,21 @@ const memoryData = [];
 const data = [];
 const storage = {};
 const indexList = -1;
+const toggler = false;
 
 function App() {
   const memoryFunctions = [
-    { function: clear, input: 'CE' },
-    { function: save, input: 'SV' },
     { function: dataSave, input: 'ME' },
+    { function: save, input: 'SV' },
     { function: deleteData, input: 'DE' },
+    { function: clear, input: 'CE' },
   ];
   const [display, setDisplay] = useState(displayText);
   const [dataValue, setDataValue] = useState(data);
   const [memory, setMemory] = useState(memoryData);
   const [storageData, setStorageData] = useState(storage);
   const [dataIndex, setDataIndex] = useState(indexList);
+  const [togg, setTogg] = useState(toggler);
 
   async function loadMemory() {
     try {
@@ -84,7 +86,8 @@ function App() {
   function printNumber(event) {
     const displayValue = event.target.innerText;
     if (displayValue === 'back') {
-      setDisplay(display.slice(0, -1));
+      const text = display.toString();
+      setDisplay(text.slice(0, -1));
     } else {
       if (displayValue === '.' && !display) {
         setDisplay(display + '0.');
@@ -122,10 +125,10 @@ function App() {
   function operations(event) {
     const sign = event.target.innerText;
     if (sign !== '=' && display) {
-      const newArray = [display, sign];
+      const newArray = togg ? [sign] : [display, sign];
       newArray.map((elem) => dataValue.push(elem));
-      console.log(dataValue);
       setDisplay('');
+      setTogg(false);
     } else {
       if (sign === '=' && display) {
         setDataValue(dataValue.push(display));
@@ -141,6 +144,7 @@ function App() {
   function clear() {
     setDisplay('');
     setDataValue([]);
+    setTogg(false);
   }
 
   async function save() {
@@ -174,8 +178,10 @@ function App() {
       const displayValue = memory[index].result;
       const memoryValue = memory[index].operation;
       setDataIndex(index);
-      setDisplay(displayValue);
+      setDisplay(displayValue[0]);
       setDataValue(memoryValue);
+      setTogg(true);
+      loadMemory();
     }
   }
 
@@ -197,6 +203,7 @@ function App() {
         console.error(error);
       }
     }
+    setTogg(false);
   }
 
   return (
@@ -210,8 +217,12 @@ function App() {
           />
           Calculadora
         </h1>
-        <div className='display'>{display}</div>
+        <div className='displayContainer'>
+          <div className='history'>{dataValue}</div>
+          <div className='display'>{display}</div>
+        </div>
         <div className='memoryControl'>
+          <span>Items Saveds: {memory.length}</span>
           <Memory />
         </div>
         <div className='controlPanel row'>

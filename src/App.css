@@ -36,7 +36,7 @@
   margin-bottom: 0;
 }
 
-.display {
+.displayContainer {
   background-color: aliceblue;
   margin: 20px 10px 5px 10px;
   border: 2px solid;
@@ -45,6 +45,10 @@
   height: 100px;
   width: 90%;
   text-align: end;
+}
+
+.display {
+  font-size: 3rem;
 }
 
 .memoryControl {
