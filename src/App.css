@@ -1,23 +1,4 @@
-* {
-  box-sizing: border-box;
-}
-
-.aplication__Logo {
-  width: 30px;
-  height: 30px;
-}
-
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 300px;
-}
-
-.aplication {
-  display: flex;
-  flex-direction: column;
-  border: 2px solid;
   border-radius: 20px;
   background: rgb(0, 255, 16);
   background: linear-gradient(
@@ -26,64 +7,42 @@
     rgba(43, 154, 35, 1) 51%,
     rgba(0, 255, 128, 1) 100%
   );
-  align-items: center;
-}
-
-.aplication > h1 {
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 0;
-}
-
-.displayContainer {
-  background-color: aliceblue;
-  margin: 20px 10px 5px 10px;
-  border: 2px solid;
-  border-radius: 10px;
-  padding: 10px;
-  height: 100px;
-  width: 90%;
-  text-align: end;
+  min-width: 530px;
+  max-width: 768px;
 }
 
 .display {
+  background-color: aliceblue;
+  height: 112px;
+}
+
+.display__input {
   font-size: 3rem;
 }
 
-.memoryControl {
+.memory {
+  gap: 10px;
+}
+
+.panel {
   display: flex;
-  justify-content: end;
-  gap: 5px;
-  margin: 10px;
-  width: 90%;
-  height: 25px;
 }
 
-.memoryControl__Button {
-  font-size: 16px;
-  font-weight: 600;
+.memory__info {
+  font-size: 20px;
 }
 
-.controlPanel {
-  border: 2px solid;
-  border-radius: 10px;
-  padding: 6px;
-  margin: 10px;
-  width: 90%;
-}
-
-.controlPanel__Button {
-  border-radius: 25px;
-}
-
-.controlPanel__Number {
-  font-weight: 600;
+.memory__button,
+.panel__numbers__button,
+.panel__operations__button {
+  border: none;
   height: 50px;
-  margin: 3px;
+  width: 30%;
+  margin: 4px;
+  font-size: 25px;
 }
 
-.controlPanel__ImgButton {
-  width: 20px;
-  height: 20px;
+.panel__operations__button {
+  width: 45%;
+  justify-content: end;
 }
