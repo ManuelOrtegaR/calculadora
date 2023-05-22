@@ -12,14 +12,50 @@ const data = [];
 const storage = {};
 const indexList = -1;
 const toggler = false;
+const memoryFunctions = ['ME', 'SV', 'DE', 'CE'];
+
+function Buttons({ printNumber }) {
+  return inputPanel.map(function (elemento) {
+    return (
+      <button
+        className='col-3 controlPanel__Button controlPanel__Number'
+        onClick={printNumber}
+        key={elemento}
+      >
+        {elemento}
+      </button>
+    );
+  });
+}
+function Operators({ operations }) {
+  return inputOperators.map(function (elemento) {
+    return (
+      <button
+        className='col-5 controlPanel__Button controlPanel__Number'
+        onClick={operations}
+        key={elemento}
+      >
+        {elemento}
+      </button>
+    );
+  });
+}
+
+function Memory({ memoryEvents }) {
+  return memoryFunctions.map(function (elemento) {
+    return (
+      <button
+        className='memoryControl__Button memory-Control__clear'
+        onClick={memoryEvents}
+        key={elemento}
+      >
+        {elemento}
+      </button>
+    );
+  });
+}
 
 function App() {
-  const memoryFunctions = [
-    { function: dataSave, input: 'ME' },
-    { function: save, input: 'SV' },
-    { function: deleteData, input: 'DE' },
-    { function: clear, input: 'CE' },
-  ];
   const [display, setDisplay] = useState(displayText);
   const [dataValue, setDataValue] = useState(data);
   const [memory, setMemory] = useState(memoryData);
@@ -44,45 +80,6 @@ function App() {
     loadMemory();
   }, []);
 
-  function Buttons() {
-    return inputPanel.map(function (elemento) {
-      return (
-        <button
-          className='col-3 controlPanel__Button controlPanel__Number'
-          onClick={printNumber}
-        >
-          {elemento}
-        </button>
-      );
-    });
-  }
-  function Operators() {
-    return inputOperators.map(function (elemento) {
-      return (
-        <button
-          className='col-5 controlPanel__Button controlPanel__Number'
-          onClick={operations}
-        >
-          {elemento}
-        </button>
-      );
-    });
-  }
-  function Memory() {
-    return memoryFunctions.map(function (elemento) {
-      const funct = elemento.function;
-      const value = elemento.input;
-      return (
-        <button
-          className='memoryControl__Button memory-Control__clear'
-          onClick={funct}
-        >
-          {value}
-        </button>
-      );
-    });
-  }
-
   function printNumber(event) {
     const displayValue = event.target.innerText;
     if (displayValue === 'back') {
@@ -103,25 +100,6 @@ function App() {
     }
   }
 
-  function equal(array) {
-    let prueba = array;
-    while (prueba.length >= 3) {
-      const stri = prueba[0] + prueba[1] + prueba[2];
-      const newStri = evaluaArimetica(stri);
-      const arr1 = prueba.slice(3);
-      arr1.unshift(newStri);
-      prueba = arr1;
-    }
-    setDisplay(prueba[0]);
-    setDataValue([]);
-
-    const postOperation = {
-      operation: array,
-      result: prueba,
-    };
-    setStorageData(postOperation);
-  }
-
   function operations(event) {
     const sign = event.target.innerText;
     if (sign !== '=' && display) {
@@ -137,17 +115,49 @@ function App() {
     }
   }
 
+  function equal(array) {
+    let prueba = array;
+    while (prueba.length >= 3) {
+      if (prueba[1] === '/' && prueba[2] === '0') {
+        window.alert(`${prueba[0]} no se puede dividir entre 0`);
+        prueba = [''];
+      } else {
+        const stri = prueba[0] + prueba[1] + prueba[2];
+        const newStri = evaluaArimetica(stri).toFixed(1);
+        const arr1 = prueba.slice(3);
+        arr1.unshift(newStri);
+        prueba = arr1;
+      }
+    }
+    setDisplay(prueba[0]);
+    setDataValue([]);
+
+    const postOperation = {
+      operation: array,
+      result: prueba,
+    };
+    setStorageData(postOperation);
+  }
+
   function evaluaArimetica(fn) {
     return new Function('return ' + fn)();
   }
 
-  function clear() {
+  function memoryEvents(event) {
+    const calculo = event.target.textContent;
+    if (calculo === 'CE') clear(event);
+    if (calculo === 'SV') save(event);
+    if (calculo === 'ME') dataSave(event);
+    if (calculo === 'DE') deleteData(event);
+  }
+
+  function clear(event) {
     setDisplay('');
     setDataValue([]);
     setTogg(false);
   }
 
-  async function save() {
+  async function save(event) {
     try {
       const response = await fetch(`${baseURL}/memory`, {
         method: 'POST',
@@ -167,7 +177,7 @@ function App() {
     }
   }
 
-  function dataSave() {
+  function dataSave(event) {
     if (memory.length > 0) {
       let index = dataIndex;
       if (index < memory.length - 1) {
@@ -185,7 +195,7 @@ function App() {
     }
   }
 
-  async function deleteData() {
+  async function deleteData(event) {
     if (dataIndex !== -1) {
       const id = memory[dataIndex].id;
       try {
@@ -206,6 +216,21 @@ function App() {
     setTogg(false);
   }
 
+  /*const handleKeyDown = (event) => {
+    const pressedKey = parseInt(event.key);
+    let eventKey = event;
+    eventKey.target.innerText = pressedKey;
+    if (inputPanel.includes(pressedKey)) {
+      printNumber(eventKey);
+    }
+    if (inputOperators.includes(pressedKey)) {
+      operations(eventKey);
+    }
+    console.log('User pressed: ', event.key);
+  };
+  tabIndex={-1} onKeyDown={handleKeyDown}
+  */
+
   return (
     <div className='container'>
       <div className='aplication'>
@@ -222,15 +247,17 @@ function App() {
           <div className='display'>{display}</div>
         </div>
         <div className='memoryControl'>
-          <span>Items Saveds: {memory.length}</span>
-          <Memory />
+          <span>
+            Items Saveds: {memory.length} position: {dataIndex + 1}
+          </span>
+          <Memory memoryEvents={memoryEvents} />
         </div>
         <div className='controlPanel row'>
           <div className='numbers col-8'>
-            <Buttons />
+            <Buttons printNumber={printNumber} />
           </div>
           <div className='operatos col-4'>
-            <Operators />
+            <Operators operations={operations} />
           </div>
         </div>
       </div>
