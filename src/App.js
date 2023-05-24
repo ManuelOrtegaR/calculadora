@@ -13,7 +13,8 @@ const data = [];
 const storage = {};
 const indexList = -1;
 const toggler = false;
-const memoryFunctions = ['ME', 'SV', 'DE', 'CE'];
+const memoryFunctions = ['MODE', 'ME', 'SV', 'DE', 'CE'];
+const mode = true;
 
 function Title() {
   return (
@@ -35,15 +36,30 @@ function Display({ dataValue, display }) {
   );
 }
 
-function MemoryControls({ memory, dataIndex, memoryEvents }) {
+function MemoryControls({ memory, dataIndex, memoryEvents, modeOp }) {
   return (
     <div className='memory row m-3'>
       <span className='memory__info col-12 text-end'>
-        Items Saveds: {memory.length} Position: {dataIndex + 1}
+        Mode: {modeOp ? 'Lineal' : 'Algebraic'} Items Saveds: {memory.length}{' '}
+        Position: {dataIndex + 1}
       </span>
       <Memory memoryEvents={memoryEvents} />
     </div>
   );
+}
+
+function Memory({ memoryEvents }) {
+  return memoryFunctions.map(function (elemento) {
+    return (
+      <button
+        className='col memory__button rounded'
+        onClick={memoryEvents}
+        key={elemento}
+      >
+        {elemento}
+      </button>
+    );
+  });
 }
 
 function ControlPanel({ printNumber, operations }) {
@@ -87,20 +103,6 @@ function Operators({ operations }) {
   });
 }
 
-function Memory({ memoryEvents }) {
-  return memoryFunctions.map(function (elemento) {
-    return (
-      <button
-        className='col memory__button rounded'
-        onClick={memoryEvents}
-        key={elemento}
-      >
-        {elemento}
-      </button>
-    );
-  });
-}
-
 function App() {
   const [display, setDisplay] = useState(displayText);
   const [dataValue, setDataValue] = useState(data);
@@ -108,6 +110,7 @@ function App() {
   const [storageData, setStorageData] = useState(storage);
   const [dataIndex, setDataIndex] = useState(indexList);
   const [togg, setTogg] = useState(toggler);
+  const [modeOp, setModeOp] = useState(mode);
 
   async function loadMemory() {
     try {
@@ -155,8 +158,10 @@ function App() {
       setTogg(false);
     } else {
       if (sign === '=' && display) {
-        setDataValue(dataValue.push(display));
-        equal(dataValue);
+        if (!togg) {
+          setDataValue(dataValue.push(display));
+        }
+        modeOp ? equalLineal(dataValue) : equalAlgeb(dataValue);
       }
     }
   }
@@ -165,8 +170,9 @@ function App() {
     return new Function('return ' + fn)();
   }
 
-  function equal(array) {
+  function equalLineal(array) {
     let process = array;
+    console.log(process);
     while (process.length >= 3) {
       if (process[1] === '/' && process[2] === '0') {
         window.alert(`${process[0]} no se puede dividir entre 0`);
@@ -189,8 +195,24 @@ function App() {
     setStorageData(postOperation);
   }
 
+  function equalAlgeb(array) {
+    console.log(array);
+    const newString = array.reduce((element, final) => element + final, '');
+    console.log(newString);
+    const result = evaluaArimetica(newString);
+    setDisplay(result);
+    setDataValue([]);
+
+    const postOperation = {
+      operation: array,
+      result: result,
+    };
+    setStorageData(postOperation);
+  }
+
   function memoryEvents(event) {
     const request = event.target.textContent;
+    if (request === 'MODE') setModeOp(!modeOp);
     if (request === 'CE') clear(event);
     if (request === 'SV') save(event);
     if (request === 'ME') dataSave(event);
@@ -267,6 +289,7 @@ function App() {
       <Title />
       <Display dataValue={dataValue} display={display} />
       <MemoryControls
+        modeOp={modeOp}
         memory={memory}
         dataIndex={dataIndex}
         memoryEvents={memoryEvents}
