@@ -1,105 +1,20 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
-import { IconCalculator, IconBackspace } from '@tabler/icons-react';
+import { Title } from './Components/Title';
+import { Display } from './Components/Display';
+import { MemoryControls } from './Components/MemoryPanel';
+import { ControlPanel } from './Components/ControlPanel';
 import './App.css';
+import { save, deleteData } from './Services/Data';
 
-const baseURL = 'http://127.0.0.1:3001';
-
-const inputPanel = [7, 8, 9, 4, 5, 6, 1, 2, 3, '.', 0, 'back'];
-const inputOperators = ['+', '-', '*', '/', '='];
 const displayText = '';
-const memoryData = [];
+const memoryData = {};
 const data = [];
 const storage = {};
 const indexList = -1;
 const toggler = false;
-const memoryFunctions = ['ME', 'SV', 'DE', 'CE'];
-
-function Title() {
-  return (
-    <div className='header m-3'>
-      <h1 className='header__title text-center'>
-        <IconCalculator size={40} />
-        Calculadora
-      </h1>
-    </div>
-  );
-}
-
-function Display({ dataValue, display }) {
-  return (
-    <div className='display row m-3 p-2 rounded'>
-      <div className='display__history col-12 text-end'>{dataValue}</div>
-      <div className='display__input col-12 text-end'>{display}</div>
-    </div>
-  );
-}
-
-function MemoryControls({ memory, dataIndex, memoryEvents }) {
-  return (
-    <div className='memory row m-3'>
-      <span className='memory__info col-12 text-end'>
-        Items Saveds: {memory.length} Position: {dataIndex + 1}
-      </span>
-      <Memory memoryEvents={memoryEvents} />
-    </div>
-  );
-}
-
-function ControlPanel({ printNumber, operations }) {
-  return (
-    <div className='panel m-3'>
-      <div className='panel__numbers col-8'>
-        <Buttons printNumber={printNumber} />
-      </div>
-      <div className='panel__operations col-4'>
-        <Operators operations={operations} />
-      </div>
-    </div>
-  );
-}
-
-function Buttons({ printNumber }) {
-  return inputPanel.map(function (elemento) {
-    return (
-      <button
-        className='panel__numbers__button rounded col-4'
-        onClick={printNumber}
-        key={elemento}
-        id={elemento}
-      >
-        {elemento === 'back' ? <IconBackspace size={30} /> : elemento}
-      </button>
-    );
-  });
-}
-function Operators({ operations }) {
-  return inputOperators.map(function (elemento) {
-    return (
-      <button
-        className='panel__operations__button rounded col-6'
-        onClick={operations}
-        key={elemento}
-      >
-        {elemento}
-      </button>
-    );
-  });
-}
-
-function Memory({ memoryEvents }) {
-  return memoryFunctions.map(function (elemento) {
-    return (
-      <button
-        className='col memory__button rounded'
-        onClick={memoryEvents}
-        key={elemento}
-      >
-        {elemento}
-      </button>
-    );
-  });
-}
+const mode = true;
+const baseURL = 'http://127.0.0.1:3001';
 
 function App() {
   const [display, setDisplay] = useState(displayText);
@@ -108,6 +23,7 @@ function App() {
   const [storageData, setStorageData] = useState(storage);
   const [dataIndex, setDataIndex] = useState(indexList);
   const [togg, setTogg] = useState(toggler);
+  const [modeOp, setModeOp] = useState(mode);
 
   async function loadMemory() {
     try {
@@ -123,7 +39,8 @@ function App() {
   }
 
   useEffect(function () {
-    loadMemory();
+    const data = loadMemory();
+    setMemory(data);
   }, []);
 
   function printNumber(event) {
@@ -155,8 +72,10 @@ function App() {
       setTogg(false);
     } else {
       if (sign === '=' && display) {
-        setDataValue(dataValue.push(display));
-        equal(dataValue);
+        if (!togg) {
+          setDataValue(dataValue.push(display));
+        }
+        modeOp ? equalLineal(dataValue) : equalAlgeb(dataValue);
       }
     }
   }
@@ -165,7 +84,7 @@ function App() {
     return new Function('return ' + fn)();
   }
 
-  function equal(array) {
+  function equalLineal(array) {
     let process = array;
     while (process.length >= 3) {
       if (process[1] === '/' && process[2] === '0') {
@@ -189,12 +108,37 @@ function App() {
     setStorageData(postOperation);
   }
 
+  function equalAlgeb(array) {
+    console.log(array);
+    const newString = array.reduce((element, final) => element + final, '');
+    console.log(newString);
+    const result = evaluaArimetica(newString);
+    setDisplay(result);
+    setDataValue([]);
+
+    const postOperation = {
+      operation: array,
+      result: result,
+    };
+    setStorageData(postOperation);
+  }
+
   function memoryEvents(event) {
     const request = event.target.textContent;
+    if (request === 'MODE') setModeOp(!modeOp);
     if (request === 'CE') clear(event);
-    if (request === 'SV') save(event);
+    if (request === 'SV') {
+      save(event, storageData);
+      setStorageData({});
+    }
     if (request === 'ME') dataSave(event);
-    if (request === 'DE') deleteData(event);
+    if (request === 'DE') {
+      deleteData(event, dataIndex, memory);
+      setDataIndex(-1);
+      setDisplay('');
+      setDataValue([]);
+      setTogg(false);
+    }
   }
 
   function clear(event) {
@@ -203,63 +147,23 @@ function App() {
     setTogg(false);
   }
 
-  async function save(event) {
-    try {
-      const response = await fetch(`${baseURL}/memory`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(storageData),
-      });
-
-      if (response.ok) {
-        setStorageData({});
-        const dataServer = await response.json();
-        setMemory([...memory, dataServer]);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   function dataSave(event) {
-    if (memory.length > 0) {
+    if (Object.keys(memory).length > 0) {
       let index = dataIndex;
-      if (index < memory.length - 1) {
+      if (index < Object.keys(memory).length - 1) {
         index++;
       } else {
         index = 0;
       }
-      const displayValue = memory[index].result;
-      const memoryValue = memory[index].operation;
+      const item = Object.keys(memory)[index];
+      const displayValue = memory[item].result;
+      const memoryValue = memory[item].operation;
       setDataIndex(index);
-      setDisplay(displayValue[0]);
+      setDisplay(displayValue);
       setDataValue(memoryValue);
       setTogg(true);
       loadMemory();
     }
-  }
-
-  async function deleteData(event) {
-    if (dataIndex !== -1) {
-      const id = memory[dataIndex].id;
-      try {
-        const response = await fetch(`${baseURL}/memory/${id}`, {
-          method: 'DELETE',
-        });
-
-        if (response.ok) {
-          loadMemory();
-          setDataIndex(-1);
-          setDisplay('');
-          setDataValue([]);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    setTogg(false);
   }
 
   return (
@@ -267,6 +171,7 @@ function App() {
       <Title />
       <Display dataValue={dataValue} display={display} />
       <MemoryControls
+        modeOp={modeOp}
         memory={memory}
         dataIndex={dataIndex}
         memoryEvents={memoryEvents}
